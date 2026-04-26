@@ -3,6 +3,11 @@ package Model;
 public enum PaymentMethod {
     CASH,
     CARD,
-    ONLINE
+    ONLINE,
+    CASH_ON_DELIVERY,
+    CARD_ON_DELIVERY,
+    STRIPE,
+    PAYPAL,
+    KLARNA
 }
 

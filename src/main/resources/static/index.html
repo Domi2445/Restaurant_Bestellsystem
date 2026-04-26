@@ -1,539 +1,767 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bestellsystem - Pizza Lieferdienst</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bestellsystem UI (React)</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --bg: #0b1220;
+            --card: #131c31;
+            --card-2: #1a2540;
+            --text: #e8eefc;
+            --muted: #9db0d6;
+            --primary: #5b8cff;
+            --ok: #22c55e;
+            --err: #ef4444;
+            --border: #2a3a61;
         }
+
+        * { box-sizing: border-box; }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            font-family: Inter, Segoe UI, Arial, sans-serif;
+            background: radial-gradient(circle at top right, #1a2850 0%, var(--bg) 50%);
+            color: var(--text);
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
-        .container {
-            width: 90%;
-            max-width: 1200px;
+        .wrap { max-width: 1200px; margin: 0 auto; padding: 24px; }
+
+        .panel {
+            background: linear-gradient(180deg, var(--card) 0%, #0f1729 100%);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+            padding: 20px;
         }
 
-        .auth-section {
-            background: white;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            text-align: center;
+        .grid { display: grid; gap: 16px; }
+        .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+        @media (max-width: 900px) {
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
         }
 
-        .auth-section h1 {
-            color: #333;
-            margin-bottom: 30px;
-        }
+        h1, h2, h3 { margin: 0 0 12px; }
+        p { margin: 0; color: var(--muted); }
 
-        .form-group {
-            margin-bottom: 15px;
-            text-align: left;
-        }
+        .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            color: #555;
-            font-weight: 500;
-        }
-
-        .form-group input {
+        .input, .select {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
-        }
-
-        .button-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        button {
-            flex: 1;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary {
-            background: #667eea;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #5568d3;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-secondary {
-            background: #764ba2;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background: #663a8a;
-            transform: translateY(-2px);
-        }
-
-        .main-content {
-            display: none;
-            background: white;
-            padding: 40px;
+            background: #0d1526;
+            color: var(--text);
+            border: 1px solid var(--border);
             border-radius: 10px;
-            margin-top: 20px;
+            padding: 10px 12px;
+            outline: none;
         }
 
-        .main-content.active {
-            display: block;
-        }
+        .input:focus, .select:focus { border-color: var(--primary); }
 
-        .navigation {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-        }
-
-        .nav-btn {
-            padding: 10px 20px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 5px;
+        .btn {
+            border: 0;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
         }
 
-        .nav-btn.active {
-            background: #764ba2;
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-muted { background: #2a3a61; color: white; }
+        .btn-danger { background: #8f2e3a; color: white; }
+
+        .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+        .tab {
+            background: #18233d;
+            color: #c9d8fb;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 8px 12px;
+            cursor: pointer;
         }
 
-        .nav-btn:hover {
-            transform: translateY(-2px);
-        }
-
-        .section {
-            display: none;
-        }
-
-        .section.active {
-            display: block;
-        }
-
-        .customer-list, .order-list, .menu-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
+        .tab.active {
+            background: var(--primary);
+            color: white;
+            border-color: transparent;
         }
 
         .card {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 5px;
-            border-left: 4px solid #667eea;
+            background: var(--card-2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
         }
 
-        .card h3 {
-            color: #333;
-            margin-bottom: 10px;
+        .pill {
+            display: inline-block;
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 999px;
+            background: #23345a;
+            color: #dbe7ff;
+            margin-right: 6px;
         }
 
-        .card p {
-            color: #666;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-
-        .card .price {
-            color: #667eea;
-            font-weight: bold;
-            font-size: 18px;
+        .msg {
             margin-top: 10px;
+            border-radius: 10px;
+            padding: 10px 12px;
+            border: 1px solid transparent;
         }
 
-        .input-form {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 5px;
-            max-width: 500px;
-        }
-
-        .logout-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            padding: 8px 15px;
-            background: #ff6b6b;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .logout-btn:hover {
-            background: #ff5252;
-        }
-
-        .message {
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-            display: none;
-        }
-
-        .message.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .message.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .message.active {
-            display: block;
-        }
-
-        h2 {
-            color: #333;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #667eea;
-            padding-bottom: 10px;
-        }
-
-        .user-info {
-            background: #f0f2f5;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .user-info span {
-            font-weight: 500;
-            color: #333;
-        }
+        .msg.ok { background: rgba(34, 197, 94, 0.15); border-color: rgba(34, 197, 94, 0.6); }
+        .msg.err { background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.6); }
+        .muted { color: var(--muted); }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Auth Section -->
-        <div id="authSection" class="auth-section">
-            <h1>🍕 Bestellsystem</h1>
-            <div class="message" id="authMessage"></div>
+<div id="root"></div>
 
-            <div class="form-group">
-                <label for="username">Benutzername</label>
-                <input type="text" id="username" placeholder="z.B. max123">
-            </div>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-            <div class="form-group">
-                <label for="password">Passwort</label>
-                <input type="password" id="password" placeholder="Passwort eingeben">
-            </div>
+<script type="text/babel">
+    const { useEffect, useMemo, useState } = React;
+    const API = "/api";
 
-            <div class="button-group">
-                <button class="btn-primary" onclick="login()">Login</button>
-                <button class="btn-secondary" onclick="register()">Registrieren</button>
-            </div>
-        </div>
+    function readAuth() {
+        return {
+            token: localStorage.getItem("accessToken") || "",
+            refreshToken: localStorage.getItem("refreshToken") || "",
+            username: localStorage.getItem("username") || "",
+            roles: JSON.parse(localStorage.getItem("roles") || "[]")
+        };
+    }
 
-        <!-- Main Content -->
-        <div id="mainContent" class="main-content">
-            <button class="logout-btn" onclick="logout()">Logout</button>
+    function saveAuth(auth) {
+        localStorage.setItem("accessToken", auth.token || "");
+        localStorage.setItem("refreshToken", auth.refreshToken || "");
+        localStorage.setItem("username", auth.username || "");
+        localStorage.setItem("roles", JSON.stringify(auth.roles || []));
+    }
 
-            <div class="user-info">
-                <span>Willkommen, <strong id="currentUser"></strong></span>
-            </div>
+    function clearAuth() {
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("username");
+        localStorage.removeItem("roles");
+    }
 
-            <div class="navigation">
-                <button class="nav-btn active" onclick="showSection('customers')">Kunden</button>
-                <button class="nav-btn" onclick="showSection('orders')">Bestellungen</button>
-                <button class="nav-btn" onclick="showSection('menu')">Menü</button>
-            </div>
+    async function callApi(path, options = {}, auth, setAuth) {
+        const doCall = async (token) => {
+            const headers = { ...(options.headers || {}) };
+            if (token) headers.Authorization = `Bearer ${token}`;
+            const resp = await fetch(API + path, { ...options, headers });
+            return resp;
+        };
 
-            <div class="message" id="message"></div>
+        let resp = await doCall(auth.token);
 
-            <!-- Customers Section -->
-            <div id="customers" class="section active">
-                <h2>Kunden verwalten</h2>
-                <div class="input-form">
-                    <div class="form-group">
-                        <label for="custFirstName">Vorname</label>
-                        <input type="text" id="custFirstName">
+        if (resp.status === 401 && auth.refreshToken) {
+            const refreshResp = await fetch(API + "/auth/refresh", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ refreshToken: auth.refreshToken })
+            });
+
+            if (refreshResp.ok) {
+                const data = await refreshResp.json();
+                const nextAuth = {
+                    token: data.token,
+                    refreshToken: data.refreshToken,
+                    username: data.username,
+                    roles: data.roles || []
+                };
+                saveAuth(nextAuth);
+                setAuth(nextAuth);
+                resp = await doCall(nextAuth.token);
+            } else {
+                clearAuth();
+                setAuth({ token: "", refreshToken: "", username: "", roles: [] });
+            }
+        }
+
+        return resp;
+    }
+
+    function AuthView({ onLogin }) {
+        const [mode, setMode] = useState("login");
+        const [username, setUsername] = useState("");
+        const [password, setPassword] = useState("");
+        const [guest, setGuest] = useState({
+            firstName: "",
+            lastName: "",
+            email: "",
+            phone: "",
+            note: ""
+        });
+        const [menuItems, setMenuItems] = useState([]);
+        const [cart, setCart] = useState([]);
+        const [loadingMenu, setLoadingMenu] = useState(true);
+        const [message, setMessage] = useState({ type: "", text: "" });
+
+        useEffect(() => {
+            let mounted = true;
+            async function loadMenu() {
+                setLoadingMenu(true);
+                try {
+                    const resp = await fetch(API + "/menu");
+                    const data = resp.ok ? await resp.json() : [];
+                    if (mounted) {
+                        setMenuItems(Array.isArray(data) ? data.filter((item) => item.available !== false) : []);
+                    }
+                } catch (e) {
+                    if (mounted) {
+                        setMenuItems([]);
+                    }
+                } finally {
+                    if (mounted) {
+                        setLoadingMenu(false);
+                    }
+                }
+            }
+
+            loadMenu();
+            return () => { mounted = false; };
+        }, []);
+
+        const cartTotal = useMemo(() => {
+            return cart.reduce((sum, line) => sum + (Number(line.basePrice) * line.quantity), 0);
+        }, [cart]);
+
+        function addToCart(item) {
+            setCart((prev) => {
+                const existing = prev.find((line) => line.id === item.id);
+                if (existing) {
+                    return prev.map((line) => line.id === item.id ? { ...line, quantity: line.quantity + 1 } : line);
+                }
+                return [...prev, { ...item, quantity: 1 }];
+            });
+        }
+
+        function decFromCart(itemId) {
+            setCart((prev) => prev
+                .map((line) => line.id === itemId ? { ...line, quantity: line.quantity - 1 } : line)
+                .filter((line) => line.quantity > 0));
+        }
+
+        function incInCart(itemId) {
+            setCart((prev) => prev.map((line) => line.id === itemId ? { ...line, quantity: line.quantity + 1 } : line));
+        }
+
+        async function submit() {
+            if (!username || !password) {
+                setMessage({ type: "err", text: "Bitte Benutzername und Passwort eingeben." });
+                return;
+            }
+
+            const path = mode === "login" ? "/auth/login" : "/auth/register";
+            const body = mode === "login"
+                ? { username, password }
+                : { username, password, email: `${username}@bestellsystem.local` };
+
+            try {
+                const resp = await fetch(API + path, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(body)
+                });
+
+                if (!resp.ok) {
+                    const err = await resp.json().catch(() => ({}));
+                    throw new Error(err.error || "Authentifizierung fehlgeschlagen.");
+                }
+
+                const data = await resp.json();
+                const auth = {
+                    token: data.token,
+                    refreshToken: data.refreshToken,
+                    username: data.username,
+                    roles: data.roles || []
+                };
+                saveAuth(auth);
+                onLogin(auth);
+            } catch (e) {
+                setMessage({ type: "err", text: e.message });
+            }
+        }
+
+        async function submitGuestOrder() {
+            if (!guest.firstName || !guest.lastName || !guest.email || !guest.phone) {
+                setMessage({ type: "err", text: "Bitte Name, E-Mail und Telefon ausfuellen." });
+                return;
+            }
+
+            if (cart.length === 0) {
+                setMessage({ type: "err", text: "Bitte erst Produkte in den Warenkorb legen." });
+                return;
+            }
+
+            const firstStoreId = cart[0] && cart[0].storeId ? cart[0].storeId : null;
+            if (!firstStoreId) {
+                setMessage({ type: "err", text: "Store-ID konnte nicht aus den Menueprodukten ermittelt werden." });
+                return;
+            }
+
+            try {
+                const resp = await fetch(API + "/orders/guest", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        firstName: guest.firstName,
+                        lastName: guest.lastName,
+                        email: guest.email,
+                        phone: guest.phone,
+                        storeId: firstStoreId,
+                        totalAmount: Number(cartTotal.toFixed(2))
+                    })
+                });
+
+                if (!resp.ok) {
+                    throw new Error("Gastbestellung konnte nicht angelegt werden.");
+                }
+
+                const order = await resp.json();
+                setMessage({ type: "ok", text: `Gastbestellung angelegt. Bestell-ID: ${order.id}` });
+                setGuest((prev) => ({ ...prev, note: "" }));
+                setCart([]);
+            } catch (e) {
+                setMessage({ type: "err", text: e.message });
+            }
+        }
+
+        return (
+            <div className="wrap grid" style={{ gap: 16 }}>
+                <div className="panel row" style={{ justifyContent: "space-between" }}>
+                    <div>
+                        <h1 style={{ marginBottom: 4 }}>Bestellsystem Storefront</h1>
+                        <p>Bestellen wie bei Lieferando/GloriaFood: Produkte sehen, in den Warenkorb legen, als Gast abschicken.</p>
                     </div>
-                    <div class="form-group">
-                        <label for="custLastName">Nachname</label>
-                        <input type="text" id="custLastName">
-                    </div>
-                    <div class="form-group">
-                        <label for="custEmail">Email</label>
-                        <input type="email" id="custEmail">
-                    </div>
-                    <div class="form-group">
-                        <label for="custPhone">Telefon</label>
-                        <input type="tel" id="custPhone">
-                    </div>
-                    <button class="btn-primary" onclick="createCustomer()" style="width: 100%;">Kunde hinzufügen</button>
+                    <span className="pill">Warenkorb: {cart.length} Artikel</span>
                 </div>
-                <h3 style="margin-top: 30px;">Kundenliste</h3>
-                <div id="customerList" class="customer-list"></div>
+
+                <div className="grid grid-3">
+                    <div className="panel" style={{ gridColumn: "span 2" }}>
+                        <h2 style={{ marginBottom: 8 }}>Produkte</h2>
+                        {loadingMenu && <p className="muted">Menue wird geladen...</p>}
+                        {!loadingMenu && menuItems.length === 0 && <p className="muted">Noch keine Produkte verfuegbar.</p>}
+
+                        <div className="grid grid-3">
+                            {menuItems.map((item) => (
+                                <div className="card" key={item.id}>
+                                    <h3>{item.name}</h3>
+                                    <p>{item.description || "-"}</p>
+                                    <p className="muted">{item.type}</p>
+                                    <p><b>{item.basePrice} EUR</b></p>
+                                    <button className="btn btn-primary" onClick={() => addToCart(item)}>In den Warenkorb</button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="panel grid" style={{ gap: 10 }}>
+                        <h2 style={{ marginBottom: 0 }}>Warenkorb</h2>
+                        {cart.length === 0 && <p className="muted">Noch leer.</p>}
+                        {cart.map((line) => (
+                            <div className="card" key={line.id}>
+                                <b>{line.name}</b>
+                                <p>{line.basePrice} EUR</p>
+                                <div className="row">
+                                    <button className="btn btn-muted" onClick={() => decFromCart(line.id)}>-</button>
+                                    <span>{line.quantity}</span>
+                                    <button className="btn btn-muted" onClick={() => incInCart(line.id)}>+</button>
+                                </div>
+                            </div>
+                        ))}
+                        <p><b>Gesamt: {cartTotal.toFixed(2)} EUR</b></p>
+                    </div>
+                </div>
+
+                <div className="grid grid-2">
+                    <div className="panel grid" style={{ gap: 10 }}>
+                        <h2 style={{ marginBottom: 2 }}>Gastbestellung abschliessen</h2>
+                        <p className="muted">Kein Login notwendig. Nur Kontaktdaten eingeben.</p>
+                        <input className="input" placeholder="Vorname" value={guest.firstName} onChange={(e) => setGuest({ ...guest, firstName: e.target.value })} />
+                        <input className="input" placeholder="Nachname" value={guest.lastName} onChange={(e) => setGuest({ ...guest, lastName: e.target.value })} />
+                        <input className="input" placeholder="E-Mail" value={guest.email} onChange={(e) => setGuest({ ...guest, email: e.target.value })} />
+                        <input className="input" placeholder="Telefon" value={guest.phone} onChange={(e) => setGuest({ ...guest, phone: e.target.value })} />
+                        <button className="btn btn-primary" onClick={submitGuestOrder}>Jetzt bestellen</button>
+                    </div>
+
+                    <div className="panel grid" style={{ gap: 12 }}>
+                        <h2 style={{ marginBottom: 2 }}>Backoffice Login</h2>
+                        <p className="muted">Nur fuer Admin/Staff zur Verwaltung und spaeterer Stripe/Klarna-Konfiguration.</p>
+
+                        <div className="row">
+                            <button className={`tab ${mode === "login" ? "active" : ""}`} onClick={() => setMode("login")}>Login</button>
+                            <button className={`tab ${mode === "register" ? "active" : ""}`} onClick={() => setMode("register")}>Registrieren</button>
+                        </div>
+
+                        <input className="input" placeholder="Benutzername" value={username} onChange={(e) => setUsername(e.target.value)} />
+                        <input className="input" type="password" placeholder="Passwort" value={password} onChange={(e) => setPassword(e.target.value)} />
+                        <button className="btn btn-muted" onClick={submit}>{mode === "login" ? "Ins Backoffice" : "Backoffice Account erstellen"}</button>
+                        <p className="muted">Default lokal: <b>admin</b> / <b>admin123</b></p>
+                    </div>
+                </div>
+
+                {message.text && <div className={`msg ${message.type}`}>{message.text}</div>}
             </div>
+        );
+    }
 
-            <!-- Orders Section -->
-            <div id="orders" class="section">
-                <h2>Bestellungen</h2>
-                <div id="orderList" class="order-list"></div>
-            </div>
+    function Dashboard({ auth, setAuth }) {
+        const [tab, setTab] = useState("customers");
+        const [message, setMessage] = useState({ type: "", text: "" });
 
-            <!-- Menu Section -->
-            <div id="menu" class="section">
-                <h2>Menüpunkte</h2>
-                <div id="menuList" class="menu-list"></div>
-            </div>
-        </div>
-    </div>
+        const [customers, setCustomers] = useState([]);
+        const [orders, setOrders] = useState([]);
+        const [menu, setMenu] = useState([]);
 
-    <script>
-        const API_URL = 'http://localhost:8080/api';
-        let authToken = null;
-        let currentUsername = null;
+        const [customerForm, setCustomerForm] = useState({ firstName: "", lastName: "", email: "", phone: "" });
+        const [orderForm, setOrderForm] = useState({ customerId: "", storeId: "", totalAmount: "" });
+        const [paymentForm, setPaymentForm] = useState({ orderId: "", amount: "", method: "STRIPE", currency: "EUR" });
 
-        function showMessage(text, type = 'success') {
-            const msg = document.getElementById('message');
-            msg.textContent = text;
-            msg.className = 'message active ' + type;
-            setTimeout(() => msg.className = 'message', 3000);
-        }
+        const [paymentResult, setPaymentResult] = useState(null);
+        const [invoiceOrderId, setInvoiceOrderId] = useState("");
+        const [invoiceResult, setInvoiceResult] = useState(null);
+        const [winOrderId, setWinOrderId] = useState("");
+        const [winOrderResult, setWinOrderResult] = useState(null);
 
-        function showAuthMessage(text, type = 'success') {
-            const msg = document.getElementById('authMessage');
-            msg.textContent = text;
-            msg.className = 'message active ' + type;
-        }
+        const isAdmin = useMemo(() => (auth.roles || []).includes("ADMIN") || (auth.roles || []).includes("STAFF"), [auth.roles]);
 
-        async function login() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-
-            if (!username || !password) {
-                showAuthMessage('Bitte alle Felder ausfüllen', 'error');
-                return;
-            }
-
+        async function loadData() {
             try {
-                const response = await fetch(`${API_URL}/auth/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
-                });
+                const [c, o, m] = await Promise.all([
+                    callApi("/customers", {}, auth, setAuth),
+                    callApi("/orders", {}, auth, setAuth),
+                    callApi("/menu", {}, auth, setAuth)
+                ]);
 
-                if (response.ok) {
-                    const data = await response.json();
-                    authToken = data.token;
-                    currentUsername = data.username;
-                    showAuthScreen(false);
-                    document.getElementById('currentUser').textContent = currentUsername;
-                    loadAllData();
-                } else {
-                    showAuthMessage('Login fehlgeschlagen', 'error');
-                }
-            } catch (error) {
-                showAuthMessage('Fehler: ' + error.message, 'error');
+                if (c.ok) setCustomers(await c.json());
+                if (o.ok) setOrders(await o.json());
+                if (m.ok) setMenu(await m.json());
+            } catch (e) {
+                setMessage({ type: "err", text: "Daten konnten nicht geladen werden." });
             }
         }
 
-        async function register() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
+        useEffect(() => { loadData(); }, []);
 
-            if (!username || !password) {
-                showAuthMessage('Bitte alle Felder ausfüllen', 'error');
-                return;
+        async function doLogout() {
+            if (auth.refreshToken) {
+                await callApi("/auth/logout", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ refreshToken: auth.refreshToken })
+                }, auth, setAuth).catch(() => {});
             }
-
-            try {
-                const response = await fetch(`${API_URL}/auth/register`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    authToken = data.token;
-                    currentUsername = data.username;
-                    showAuthScreen(false);
-                    document.getElementById('currentUser').textContent = currentUsername;
-                    loadAllData();
-                } else {
-                    showAuthMessage('Registrierung fehlgeschlagen', 'error');
-                }
-            } catch (error) {
-                showAuthMessage('Fehler: ' + error.message, 'error');
-            }
-        }
-
-        function logout() {
-            authToken = null;
-            currentUsername = null;
-            showAuthScreen(true);
-            document.getElementById('username').value = '';
-            document.getElementById('password').value = '';
-        }
-
-        function showAuthScreen(show) {
-            document.getElementById('authSection').style.display = show ? 'block' : 'none';
-            document.getElementById('mainContent').style.display = show ? 'none' : 'block';
-        }
-
-        function showSection(sectionId) {
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.getElementById(sectionId).classList.add('active');
-
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            event.target.classList.add('active');
+            clearAuth();
+            setAuth({ token: "", refreshToken: "", username: "", roles: [] });
         }
 
         async function createCustomer() {
-            const firstName = document.getElementById('custFirstName').value;
-            const lastName = document.getElementById('custLastName').value;
-            const email = document.getElementById('custEmail').value;
-            const phone = document.getElementById('custPhone').value;
+            const resp = await callApi("/customers", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(customerForm)
+            }, auth, setAuth);
 
-            if (!firstName || !lastName || !email || !phone) {
-                showMessage('Bitte alle Felder ausfüllen', 'error');
+            if (resp.ok) {
+                setCustomerForm({ firstName: "", lastName: "", email: "", phone: "" });
+                setMessage({ type: "ok", text: "Kunde wurde angelegt." });
+                loadData();
+            } else {
+                setMessage({ type: "err", text: "Kunde konnte nicht angelegt werden." });
+            }
+        }
+
+        async function createOrder() {
+            const payload = {
+                customerId: orderForm.customerId,
+                storeId: orderForm.storeId,
+                totalAmount: Number(orderForm.totalAmount),
+                status: "CREATED"
+            };
+
+            const resp = await callApi("/orders", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            }, auth, setAuth);
+
+            if (resp.ok) {
+                const order = await resp.json();
+                setOrderForm({ customerId: "", storeId: "", totalAmount: "" });
+                setPaymentForm((prev) => ({ ...prev, orderId: order.id, amount: order.totalAmount }));
+                setMessage({ type: "ok", text: "Bestellung wurde angelegt." });
+                loadData();
+            } else {
+                setMessage({ type: "err", text: "Bestellung konnte nicht angelegt werden." });
+            }
+        }
+
+        async function createPayment() {
+            const resp = await callApi("/payments", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    orderId: paymentForm.orderId,
+                    amount: Number(paymentForm.amount),
+                    method: paymentForm.method,
+                    currency: paymentForm.currency
+                })
+            }, auth, setAuth);
+
+            if (!resp.ok) {
+                setMessage({ type: "err", text: "Payment konnte nicht erstellt werden." });
                 return;
             }
 
-            try {
-                const response = await fetch(`${API_URL}/customers`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${authToken}`
-                    },
-                    body: JSON.stringify({ firstName, lastName, email, phone })
-                });
+            const payment = await resp.json();
+            setPaymentResult(payment);
+            setMessage({ type: "ok", text: `Payment erstellt (${payment.provider}).` });
+        }
 
-                if (response.ok) {
-                    showMessage('Kunde erfolgreich hinzugefügt', 'success');
-                    document.getElementById('custFirstName').value = '';
-                    document.getElementById('custLastName').value = '';
-                    document.getElementById('custEmail').value = '';
-                    document.getElementById('custPhone').value = '';
-                    loadCustomers();
-                } else {
-                    showMessage('Fehler beim Hinzufügen', 'error');
-                }
-            } catch (error) {
-                showMessage('Fehler: ' + error.message, 'error');
+        async function confirmPayment() {
+            if (!paymentResult?.id) return;
+            const resp = await callApi(`/payments/${paymentResult.id}/confirm`, { method: "POST" }, auth, setAuth);
+            if (resp.ok) {
+                setPaymentResult(await resp.json());
+                setMessage({ type: "ok", text: "Payment bestaetigt." });
+                loadData();
+            } else {
+                setMessage({ type: "err", text: "Payment konnte nicht bestaetigt werden." });
             }
         }
 
-        async function loadCustomers() {
-            try {
-                const response = await fetch(`${API_URL}/customers`, {
-                    headers: { 'Authorization': `Bearer ${authToken}` }
-                });
+        async function loadInvoiceByOrder() {
+            const resp = await callApi(`/invoices/order/${invoiceOrderId}`, {}, auth, setAuth);
+            if (resp.ok) {
+                setInvoiceResult(await resp.json());
+            } else {
+                setInvoiceResult(null);
+                setMessage({ type: "err", text: "Rechnung nicht gefunden oder keine Berechtigung." });
+            }
+        }
 
-                if (response.ok) {
-                    const customers = await response.json();
-                    const html = customers.map(c => `
-                        <div class="card">
-                            <h3>${c.firstName} ${c.lastName}</h3>
-                            <p>📧 ${c.email}</p>
-                            <p>📱 ${c.phone}</p>
+        async function sendInvoice() {
+            if (!invoiceResult?.id) return;
+            const resp = await callApi(`/invoices/${invoiceResult.id}/send`, { method: "POST" }, auth, setAuth);
+            if (resp.ok) {
+                setInvoiceResult(await resp.json());
+                setMessage({ type: "ok", text: "Rechnung wurde als versendet markiert." });
+            }
+        }
+
+        async function loadWinOrderExport() {
+            const resp = await callApi(`/winorder/orders/${winOrderId}`, {}, auth, setAuth);
+            if (resp.ok) {
+                setWinOrderResult(await resp.json());
+            } else {
+                setWinOrderResult(null);
+                setMessage({ type: "err", text: "WinOrder Export nicht verfuegbar." });
+            }
+        }
+
+        return (
+            <div className="wrap grid" style={{ gap: 18 }}>
+                <div className="panel row" style={{ justifyContent: "space-between" }}>
+                    <div>
+                        <h2 style={{ marginBottom: 4 }}>Bestellsystem Dashboard</h2>
+                        <p>Angemeldet als <b>{auth.username}</b></p>
+                        <div style={{ marginTop: 8 }}>
+                            {(auth.roles || []).map((r) => <span className="pill" key={r}>{r}</span>)}
                         </div>
-                    `).join('');
-                    document.getElementById('customerList').innerHTML = html;
-                }
-            } catch (error) {
-                console.error('Fehler beim Laden von Kunden:', error);
-            }
-        }
+                    </div>
+                    <button className="btn btn-danger" onClick={doLogout}>Logout</button>
+                </div>
 
-        async function loadAllData() {
-            loadCustomers();
-            loadOrders();
-            loadMenu();
-        }
+                <div className="tabs">
+                    <button className={`tab ${tab === "customers" ? "active" : ""}`} onClick={() => setTab("customers")}>Kunden</button>
+                    <button className={`tab ${tab === "orders" ? "active" : ""}`} onClick={() => setTab("orders")}>Bestellungen</button>
+                    <button className={`tab ${tab === "menu" ? "active" : ""}`} onClick={() => setTab("menu")}>Menue</button>
+                    <button className={`tab ${tab === "payments" ? "active" : ""}`} onClick={() => setTab("payments")}>Payments</button>
+                    {isAdmin && <button className={`tab ${tab === "invoices" ? "active" : ""}`} onClick={() => setTab("invoices")}>Rechnungen</button>}
+                    {isAdmin && <button className={`tab ${tab === "winorder" ? "active" : ""}`} onClick={() => setTab("winorder")}>WinOrder</button>}
+                </div>
 
-        async function loadOrders() {
-            try {
-                const response = await fetch(`${API_URL}/orders`, {
-                    headers: { 'Authorization': `Bearer ${authToken}` }
-                });
-                if (response.ok) {
-                    const orders = await response.json();
-                    const html = orders.map(o => `
-                        <div class="card">
-                            <h3>Bestellung #${o.id.substring(0, 8)}</h3>
-                            <p>💰 ${o.totalAmount} €</p>
-                            <p>Status: ${o.status}</p>
+                {message.text && <div className={`msg ${message.type}`}>{message.text}</div>}
+
+                {tab === "customers" && (
+                    <div className="grid grid-2">
+                        <div className="panel grid">
+                            <h3>Kunde anlegen</h3>
+                            <input className="input" placeholder="Vorname" value={customerForm.firstName} onChange={(e) => setCustomerForm({ ...customerForm, firstName: e.target.value })} />
+                            <input className="input" placeholder="Nachname" value={customerForm.lastName} onChange={(e) => setCustomerForm({ ...customerForm, lastName: e.target.value })} />
+                            <input className="input" placeholder="Email" value={customerForm.email} onChange={(e) => setCustomerForm({ ...customerForm, email: e.target.value })} />
+                            <input className="input" placeholder="Telefon" value={customerForm.phone} onChange={(e) => setCustomerForm({ ...customerForm, phone: e.target.value })} />
+                            <button className="btn btn-primary" onClick={createCustomer}>Speichern</button>
                         </div>
-                    `).join('');
-                    document.getElementById('orderList').innerHTML = html || '<p>Keine Bestellungen</p>';
-                }
-            } catch (error) {
-                console.error('Fehler beim Laden von Bestellungen:', error);
-            }
-        }
 
-        async function loadMenu() {
-            try {
-                const response = await fetch(`${API_URL}/menu`, {
-                    headers: { 'Authorization': `Bearer ${authToken}` }
-                });
-                if (response.ok) {
-                    const items = await response.json();
-                    const html = items.map(item => `
-                        <div class="card">
-                            <h3>${item.name}</h3>
-                            <p>${item.description}</p>
-                            <div class="price">${item.basePrice} €</div>
+                        <div className="panel grid">
+                            <h3>Kundenliste</h3>
+                            {customers.length === 0 && <p className="muted">Noch keine Kunden vorhanden.</p>}
+                            {customers.map((c) => (
+                                <div className="card" key={c.id}>
+                                    <b>{c.firstName} {c.lastName}</b>
+                                    <p>{c.email}</p>
+                                    <p>{c.phone}</p>
+                                    <p className="muted">ID: {c.id}</p>
+                                </div>
+                            ))}
                         </div>
-                    `).join('');
-                    document.getElementById('menuList').innerHTML = html || '<p>Keine Menüpunkte</p>';
-                }
-            } catch (error) {
-                console.error('Fehler beim Laden vom Menü:', error);
-            }
-        }
+                    </div>
+                )}
 
-        // Init
-        showAuthScreen(true);
-    </script>
+                {tab === "orders" && (
+                    <div className="grid grid-2">
+                        <div className="panel grid">
+                            <h3>Bestellung anlegen</h3>
+                            <input className="input" placeholder="Customer ID" value={orderForm.customerId} onChange={(e) => setOrderForm({ ...orderForm, customerId: e.target.value })} />
+                            <input className="input" placeholder="Store ID (UUID)" value={orderForm.storeId} onChange={(e) => setOrderForm({ ...orderForm, storeId: e.target.value })} />
+                            <input className="input" placeholder="Betrag" value={orderForm.totalAmount} onChange={(e) => setOrderForm({ ...orderForm, totalAmount: e.target.value })} />
+                            <button className="btn btn-primary" onClick={createOrder}>Bestellung speichern</button>
+                        </div>
+
+                        <div className="panel grid">
+                            <h3>Bestellungen</h3>
+                            {orders.length === 0 && <p className="muted">Noch keine Bestellungen vorhanden.</p>}
+                            {orders.map((o) => (
+                                <div className="card" key={o.id}>
+                                    <b>#{String(o.id).slice(0, 8)}</b>
+                                    <p>Status: {o.status}</p>
+                                    <p>Total: {o.totalAmount}</p>
+                                    <p className="muted">Customer: {o.customerId}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {tab === "menu" && (
+                    <div className="panel grid">
+                        <h3>Menue</h3>
+                        {menu.length === 0 && <p className="muted">Keine Menue-Eintraege vorhanden.</p>}
+                        <div className="grid grid-3">
+                            {menu.map((m) => (
+                                <div className="card" key={m.id}>
+                                    <b>{m.name}</b>
+                                    <p>{m.description || "-"}</p>
+                                    <p>Typ: {m.type}</p>
+                                    <p>Preis: {m.basePrice}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {tab === "payments" && (
+                    <div className="grid grid-2">
+                        <div className="panel grid">
+                            <h3>Payment erstellen</h3>
+                            <input className="input" placeholder="Order ID" value={paymentForm.orderId} onChange={(e) => setPaymentForm({ ...paymentForm, orderId: e.target.value })} />
+                            <input className="input" placeholder="Betrag" value={paymentForm.amount} onChange={(e) => setPaymentForm({ ...paymentForm, amount: e.target.value })} />
+                            <select className="select" value={paymentForm.method} onChange={(e) => setPaymentForm({ ...paymentForm, method: e.target.value })}>
+                                <option>STRIPE</option>
+                                <option>PAYPAL</option>
+                                <option>KLARNA</option>
+                                <option>CASH_ON_DELIVERY</option>
+                                <option>CARD_ON_DELIVERY</option>
+                                <option>CASH</option>
+                                <option>CARD</option>
+                            </select>
+                            <input className="input" placeholder="Currency" value={paymentForm.currency} onChange={(e) => setPaymentForm({ ...paymentForm, currency: e.target.value })} />
+                            <div className="row">
+                                <button className="btn btn-primary" onClick={createPayment}>Payment erstellen</button>
+                                <button className="btn btn-muted" onClick={confirmPayment} disabled={!paymentResult}>Payment bestaetigen</button>
+                            </div>
+                        </div>
+
+                        <div className="panel grid">
+                            <h3>Payment Ergebnis</h3>
+                            {!paymentResult && <p className="muted">Noch kein Payment erstellt.</p>}
+                            {paymentResult && (
+                                <div className="card">
+                                    <p><b>ID:</b> {paymentResult.id}</p>
+                                    <p><b>Status:</b> {paymentResult.status}</p>
+                                    <p><b>Provider:</b> {paymentResult.provider}</p>
+                                    <p><b>External ID:</b> {paymentResult.externalPaymentId || "-"}</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {isAdmin && tab === "invoices" && (
+                    <div className="grid grid-2">
+                        <div className="panel grid">
+                            <h3>Rechnung laden</h3>
+                            <input className="input" placeholder="Order ID" value={invoiceOrderId} onChange={(e) => setInvoiceOrderId(e.target.value)} />
+                            <div className="row">
+                                <button className="btn btn-primary" onClick={loadInvoiceByOrder}>Laden</button>
+                                <button className="btn btn-muted" onClick={sendInvoice} disabled={!invoiceResult}>Als versendet markieren</button>
+                            </div>
+                        </div>
+
+                        <div className="panel grid">
+                            <h3>Rechnungsdaten</h3>
+                            {!invoiceResult && <p className="muted">Keine Rechnung geladen.</p>}
+                            {invoiceResult && (
+                                <div className="card">
+                                    <p><b>Nummer:</b> {invoiceResult.invoiceNumber}</p>
+                                    <p><b>Status:</b> {invoiceResult.status}</p>
+                                    <p><b>Email:</b> {invoiceResult.email}</p>
+                                    <p><b>Betrag:</b> {invoiceResult.amount}</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {isAdmin && tab === "winorder" && (
+                    <div className="grid grid-2">
+                        <div className="panel grid">
+                            <h3>WinOrder Export</h3>
+                            <input className="input" placeholder="Order ID" value={winOrderId} onChange={(e) => setWinOrderId(e.target.value)} />
+                            <button className="btn btn-primary" onClick={loadWinOrderExport}>Export laden</button>
+                        </div>
+
+                        <div className="panel grid">
+                            <h3>WinOrder Antwort</h3>
+                            {!winOrderResult && <p className="muted">Keine Daten vorhanden.</p>}
+                            {winOrderResult && (
+                                <div className="card">
+                                    <p><b>Order ID:</b> {winOrderResult.orderId}</p>
+                                    <p><b>Status:</b> {winOrderResult.status}</p>
+                                    <p><b>Total:</b> {winOrderResult.totalAmount}</p>
+                                    <p><b>Customer:</b> {winOrderResult.customerId}</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+            </div>
+        );
+    }
+
+    function App() {
+        const [auth, setAuth] = useState(readAuth());
+        const isLoggedIn = !!auth.token;
+
+        if (!isLoggedIn) {
+            return <AuthView onLogin={setAuth} />;
+        }
+        return <Dashboard auth={auth} setAuth={setAuth} />;
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
 </body>
 </html>
 
