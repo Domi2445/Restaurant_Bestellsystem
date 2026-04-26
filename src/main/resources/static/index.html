@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bestellsystem - Pizza Lieferdienst</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+        }
+
+        .auth-section {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .auth-section h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #764ba2;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #663a8a;
+            transform: translateY(-2px);
+        }
+
+        .main-content {
+            display: none;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .main-content.active {
+            display: block;
+        }
+
+        .navigation {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .nav-btn {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn.active {
+            background: #764ba2;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .customer-list, .order-list, .menu-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+        }
+
+        .card h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            color: #666;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .card .price {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 18px;
+            margin-top: 10px;
+        }
+
+        .input-form {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            max-width: 500px;
+        }
+
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 8px 15px;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .logout-btn:hover {
+            background: #ff5252;
+        }
+
+        .message {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .message.active {
+            display: block;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .user-info {
+            background: #f0f2f5;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-info span {
+            font-weight: 500;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Auth Section -->
+        <div id="authSection" class="auth-section">
+            <h1>🍕 Bestellsystem</h1>
+            <div class="message" id="authMessage"></div>
+
+            <div class="form-group">
+                <label for="username">Benutzername</label>
+                <input type="text" id="username" placeholder="z.B. max123">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Passwort</label>
+                <input type="password" id="password" placeholder="Passwort eingeben">
+            </div>
+
+            <div class="button-group">
+                <button class="btn-primary" onclick="login()">Login</button>
+                <button class="btn-secondary" onclick="register()">Registrieren</button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div id="mainContent" class="main-content">
+            <button class="logout-btn" onclick="logout()">Logout</button>
+
+            <div class="user-info">
+                <span>Willkommen, <strong id="currentUser"></strong></span>
+            </div>
+
+            <div class="navigation">
+                <button class="nav-btn active" onclick="showSection('customers')">Kunden</button>
+                <button class="nav-btn" onclick="showSection('orders')">Bestellungen</button>
+                <button class="nav-btn" onclick="showSection('menu')">Menü</button>
+            </div>
+
+            <div class="message" id="message"></div>
+
+            <!-- Customers Section -->
+            <div id="customers" class="section active">
+                <h2>Kunden verwalten</h2>
+                <div class="input-form">
+                    <div class="form-group">
+                        <label for="custFirstName">Vorname</label>
+                        <input type="text" id="custFirstName">
+                    </div>
+                    <div class="form-group">
+                        <label for="custLastName">Nachname</label>
+                        <input type="text" id="custLastName">
+                    </div>
+                    <div class="form-group">
+                        <label for="custEmail">Email</label>
+                        <input type="email" id="custEmail">
+                    </div>
+                    <div class="form-group">
+                        <label for="custPhone">Telefon</label>
+                        <input type="tel" id="custPhone">
+                    </div>
+                    <button class="btn-primary" onclick="createCustomer()" style="width: 100%;">Kunde hinzufügen</button>
+                </div>
+                <h3 style="margin-top: 30px;">Kundenliste</h3>
+                <div id="customerList" class="customer-list"></div>
+            </div>
+
+            <!-- Orders Section -->
+            <div id="orders" class="section">
+                <h2>Bestellungen</h2>
+                <div id="orderList" class="order-list"></div>
+            </div>
+
+            <!-- Menu Section -->
+            <div id="menu" class="section">
+                <h2>Menüpunkte</h2>
+                <div id="menuList" class="menu-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8080/api';
+        let authToken = null;
+        let currentUsername = null;
+
+        function showMessage(text, type = 'success') {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = 'message active ' + type;
+            setTimeout(() => msg.className = 'message', 3000);
+        }
+
+        function showAuthMessage(text, type = 'success') {
+            const msg = document.getElementById('authMessage');
+            msg.textContent = text;
+            msg.className = 'message active ' + type;
+        }
+
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (!username || !password) {
+                showAuthMessage('Bitte alle Felder ausfüllen', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    authToken = data.token;
+                    currentUsername = data.username;
+                    showAuthScreen(false);
+                    document.getElementById('currentUser').textContent = currentUsername;
+                    loadAllData();
+                } else {
+                    showAuthMessage('Login fehlgeschlagen', 'error');
+                }
+            } catch (error) {
+                showAuthMessage('Fehler: ' + error.message, 'error');
+            }
+        }
+
+        async function register() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (!username || !password) {
+                showAuthMessage('Bitte alle Felder ausfüllen', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    authToken = data.token;
+                    currentUsername = data.username;
+                    showAuthScreen(false);
+                    document.getElementById('currentUser').textContent = currentUsername;
+                    loadAllData();
+                } else {
+                    showAuthMessage('Registrierung fehlgeschlagen', 'error');
+                }
+            } catch (error) {
+                showAuthMessage('Fehler: ' + error.message, 'error');
+            }
+        }
+
+        function logout() {
+            authToken = null;
+            currentUsername = null;
+            showAuthScreen(true);
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+        }
+
+        function showAuthScreen(show) {
+            document.getElementById('authSection').style.display = show ? 'block' : 'none';
+            document.getElementById('mainContent').style.display = show ? 'none' : 'block';
+        }
+
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        async function createCustomer() {
+            const firstName = document.getElementById('custFirstName').value;
+            const lastName = document.getElementById('custLastName').value;
+            const email = document.getElementById('custEmail').value;
+            const phone = document.getElementById('custPhone').value;
+
+            if (!firstName || !lastName || !email || !phone) {
+                showMessage('Bitte alle Felder ausfüllen', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/customers`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ firstName, lastName, email, phone })
+                });
+
+                if (response.ok) {
+                    showMessage('Kunde erfolgreich hinzugefügt', 'success');
+                    document.getElementById('custFirstName').value = '';
+                    document.getElementById('custLastName').value = '';
+                    document.getElementById('custEmail').value = '';
+                    document.getElementById('custPhone').value = '';
+                    loadCustomers();
+                } else {
+                    showMessage('Fehler beim Hinzufügen', 'error');
+                }
+            } catch (error) {
+                showMessage('Fehler: ' + error.message, 'error');
+            }
+        }
+
+        async function loadCustomers() {
+            try {
+                const response = await fetch(`${API_URL}/customers`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    const customers = await response.json();
+                    const html = customers.map(c => `
+                        <div class="card">
+                            <h3>${c.firstName} ${c.lastName}</h3>
+                            <p>📧 ${c.email}</p>
+                            <p>📱 ${c.phone}</p>
+                        </div>
+                    `).join('');
+                    document.getElementById('customerList').innerHTML = html;
+                }
+            } catch (error) {
+                console.error('Fehler beim Laden von Kunden:', error);
+            }
+        }
+
+        async function loadAllData() {
+            loadCustomers();
+            loadOrders();
+            loadMenu();
+        }
+
+        async function loadOrders() {
+            try {
+                const response = await fetch(`${API_URL}/orders`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                if (response.ok) {
+                    const orders = await response.json();
+                    const html = orders.map(o => `
+                        <div class="card">
+                            <h3>Bestellung #${o.id.substring(0, 8)}</h3>
+                            <p>💰 ${o.totalAmount} €</p>
+                            <p>Status: ${o.status}</p>
+                        </div>
+                    `).join('');
+                    document.getElementById('orderList').innerHTML = html || '<p>Keine Bestellungen</p>';
+                }
+            } catch (error) {
+                console.error('Fehler beim Laden von Bestellungen:', error);
+            }
+        }
+
+        async function loadMenu() {
+            try {
+                const response = await fetch(`${API_URL}/menu`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                if (response.ok) {
+                    const items = await response.json();
+                    const html = items.map(item => `
+                        <div class="card">
+                            <h3>${item.name}</h3>
+                            <p>${item.description}</p>
+                            <div class="price">${item.basePrice} €</div>
+                        </div>
+                    `).join('');
+                    document.getElementById('menuList').innerHTML = html || '<p>Keine Menüpunkte</p>';
+                }
+            } catch (error) {
+                console.error('Fehler beim Laden vom Menü:', error);
+            }
+        }
+
+        // Init
+        showAuthScreen(true);
+    </script>
+</body>
+</html>
+
