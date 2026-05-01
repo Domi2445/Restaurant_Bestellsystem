@@ -74,6 +74,54 @@ public class PaymentService {
                 .orElseThrow(() -> new IllegalArgumentException("Zahlung nicht gefunden."));
     }
 
+    /**
+     * Bestätige Zahlung via externe ID (z.B. Stripe PaymentIntent ID)
+     * Wird durch Webhooks aufgerufen
+     */
+    @Transactional
+    public void confirmPaymentByExternalId(String externalPaymentId) {
+        paymentRepository.findByExternalPaymentId(externalPaymentId)
+                .ifPresent(payment -> {
+                    payment.setStatus(PaymentStatus.PAID);
+                    paymentRepository.save(payment);
+
+                    // Aktualisiere Order Status
+                    Order order = orderRepository.findById(payment.getOrderId())
+                            .orElse(null);
+                    if (order != null) {
+                        order.setStatus(OrderStatus.CONFIRMED);
+                        orderRepository.save(order);
+                    }
+                });
+    }
+
+    /**
+     * Verarbeite Klarna Webhook Payload
+     */
+    @Transactional
+    public void handleKlarnaWebhook(String payload) {
+        // Implementierung hängt von Klarna Webhook Struktur ab
+        // Beispiel: Parse JSON und aktualisiere Payment Status
+        try {
+            com.fasterxml.jackson.databind.ObjectMapper mapper =
+                new com.fasterxml.jackson.databind.ObjectMapper();
+            com.fasterxml.jackson.databind.JsonNode root = mapper.readTree(payload);
+
+            String orderId = root.get("order_id").asText();
+            String status = root.get("status").asText();
+
+            paymentRepository.findByExternalPaymentId(orderId)
+                    .ifPresent(payment -> {
+                        if ("completed".equalsIgnoreCase(status)) {
+                            payment.setStatus(PaymentStatus.PAID);
+                            paymentRepository.save(payment);
+                        }
+                    });
+        } catch (Exception e) {
+            System.err.println("Fehler beim Verarbeiten von Klarna Webhook: " + e.getMessage());
+        }
+    }
+
     private PaymentProvider resolveProvider(Payment payment) {
         return paymentProviders.stream()
                 .filter(provider -> provider.supports(payment.getMethod()))
